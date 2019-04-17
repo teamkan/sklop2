@@ -50,6 +50,10 @@ router.get('/:id/addstories/:idsprint', async function(req, res, next) {
     res.render('sprints_addstories', { errorMessages: 0, success: 0, stories: projectStories, project: currentProject, idsprint: req.params.idsprint, uid: req.user.id, username: req.user.username, isUser: req.user.is_user});
 });
 
+router.post('/:id/addstories/:idsprint', async function(req, res, next) {
+    //TODO, pridobi vrednosti iz forma, shrani
+});
+
 router.post('/', ProjectHelper.isSMorAdmin, async function(req, res, next) {
     let data = req.body;
 
