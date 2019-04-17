@@ -1,0 +1,38 @@
+extends layout
+
+block content
+    script.
+        function sprintToModal(obj) {
+            var id = $(obj).text().split(" ")[3];
+            $('#modalTitle').text('Sprint ' + id);
+        }
+
+        function fillSprintModal(sprint) {
+            $('#modalTitle').text('Sprint ' + sprint.id + ' | ' + sprint.Project.name);
+            
+        }
+
+    body
+        main.container(role="main")
+            .container.theme-showcase
+                .page-header
+
+                    .page-header
+                        h3 Add stories to sprint
+                    hr
+
+                    div.main.container
+                        form.well.form-horizontarl(method='POST' action='TODO')
+                            h1 Project: #{project.name} , Sprint: #{idsprint}
+                            p Description: #{project.description}
+                            hr
+                            h6 Stories list
+                            hr
+                            select.custom-select#storiesList(name="Stories" multiple)
+                                    each story in stories
+                                        option(value=story.id) #{story.name}
+                            hr
+                            button.btn.btn-primary(type="submit" data-dismiss="modal") Save
+
+
+

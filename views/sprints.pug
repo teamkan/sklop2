@@ -1,6 +1,16 @@
 extends layout
 
 block content
+    script.
+        function sprintToModal(obj) {
+            var id = $(obj).text().split(" ")[3];
+            $('#modalTitle').text('Sprint ' + id);
+        }
+
+        function fillSprintModal(sprint) {
+            $('#modalTitle').text('Sprint ' + sprint.id + ' | ' + sprint.Project.name);
+            
+        }
 
     body
         main.container(role="main")
@@ -32,6 +42,7 @@ block content
                                                 th(scope="col") Velocity
 
                                                 //th Edit
+                                                th(scope="col") Options
                                         tbody
                                             each sprint in sprints
                                                 tr
@@ -44,9 +55,30 @@ block content
                                                     td #{moment(sprint.startDate).format('DD.MM.YYYY')}
                                                     td #{moment(sprint.endDate).format('DD.MM.YYYY')}
                                                     td #{sprint.velocity}
+                                                    td
+                                                        //button(type="button" class="btn-primary btn" href='/sprints/'+ sprint.Project.id + '/addstories') Add stories
+                                                        a(href='/sprints/'+ sprint.Project.id + '/addstories/' + sprint.id) Add stories
 
                         if !sprints.length
                             div.col-md-12
                                 p Seems like you do not have any sprints.
                                 p Enjoy your free day.
+                    
+                    div.modal.fade#addStories_modal(tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true")
+                        //form.well.form-horizontal(method='POST' action=(toEditProject ? '/projects/'+ toEditProject.id + '/edit/' : '/projects/create'))
+                        form.well.form-horizontal(method='POST')
+                            div.modal-dialog(role="document")
+                                div.modal-content
+                                    div.modal-header
+                                        h5.moda-title#modalTitle Modal title
+                                        button.close(type="button" data-dismiss="modal" aria-label="Close")
+                                            span(aria-hidden="true") x
+                                    .modal-body
+                                        h6 Stories list
+                                        hr
+                                        select.custom-select#storiesList(name="Stories" multiple)
+                                            option(value="") Placeholder
+                                    div.modal-footer
+                                        button.btn.btn-primary(type="submit" data-dismiss="modal") Save
+
 

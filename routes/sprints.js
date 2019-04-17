@@ -9,6 +9,7 @@ var middleware = require('./middleware.js');
 
 var ProjectHelper = require('../helpers/ProjectHelper');
 var SprintsHelper = require('../helpers/SprintsHelper');
+var StoriesHelper = require('../helpers/StoriesHelper');
 var moment = require('moment')
 
 var myProjects;
@@ -19,7 +20,6 @@ router.get('/', middleware.ensureAuthenticated, async function(req, res, next) {
     myProjects              = await ProjectHelper.getAllowedProjects(user.id);
     let assignedProjectsIds = myProjects.map( (row) => {return row.id});
     let sprints             = await SprintsHelper.sprintsInProjects(assignedProjectsIds);
-
     var is_sm = false;
     for(let project of myProjects){
         if(project.scrum_master === user.id ){
@@ -40,6 +40,14 @@ router.get('/', middleware.ensureAuthenticated, async function(req, res, next) {
         is_sm:is_sm,
         success: 0
     });
+});
+
+//--------
+router.get('/:id/addstories/:idsprint', async function(req, res, next) {
+    let projectStories = await StoriesHelper.listStories(req.params.id);
+    let currentProject = await ProjectHelper.getProject(req.params.idsprint);
+    console.log(projectStories);
+    res.render('sprints_addstories', { errorMessages: 0, success: 0, stories: projectStories, project: currentProject, idsprint: req.params.idsprint, uid: req.user.id, username: req.user.username, isUser: req.user.is_user});
 });
 
 router.post('/', ProjectHelper.isSMorAdmin, async function(req, res, next) {

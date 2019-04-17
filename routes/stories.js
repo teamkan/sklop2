@@ -165,5 +165,4 @@ router.post('/:id/estimate/:storyId', ProjectHelper.isSMorPM, async function(req
 
 });
 
-
 module.exports = router;
