@@ -56,11 +56,11 @@ block content
                                                     td #{moment(sprint.endDate).format('DD.MM.YYYY')}
                                                     td #{sprint.velocity}
                                                     td
-                                                        //button(type="button" class="btn-primary btn" href='/sprints/'+ sprint.Project.id + '/addstories') Add stories
                                                         if isUser
                                                             a() Add stories
                                                         else
-                                                            a(href='/sprints/'+ sprint.Project.id + '/addstories/' + sprint.id) Add stories
+                                                            if moment().isBetween(moment(sprint.startDate), moment(sprint.endDate), 'days', '[]')
+                                                                a(href='/sprints/'+ sprint.Project.id + '/addstories/' + sprint.id) Add stories
 
                         if !sprints.length
                             div.col-md-12
