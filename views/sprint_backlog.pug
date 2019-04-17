@@ -36,6 +36,20 @@ block content
                             div.card-deck
                                 .card.border-secondary
                                     .card-header.alert-primary
+                                        | Not Assigned
+                                        .br
+                                        small Uncompleted stories assigned to sprint
+                                    .card-body
+                                        blockquote.blockquote.mb-0
+                                            .list-group
+                                                each task in tasks
+                                                    a.list-group-item.list-group-item-action.flex-column.align-items-start
+                                                        .d-flex.w-100.justify-content-between
+                                                            p.mb-2 #{task.name}
+                                                        small Description: #{task.description}
+                                                        br
+                                .card.border-secondary
+                                    .card-header.alert-primary
                                         | Assigned
                                         .br
                                         small Uncompleted stories assigned to sprint
@@ -48,6 +62,24 @@ block content
                                                             p.mb-2 #{task.name}
                                                         small Description: #{task.description}
                                                         br
+                                .card.border-secondary
+                                    .card-header.alert-primary
+                                        | In-progress
+                                        .br
+                                        small Uncompleted stories assigned to sprint
+                                    .card-body
+                                        blockquote.blockquote.mb-0
+                                            .list-group
+
+                                .card.border-secondary
+                                    .card-header.alert-primary
+                                        | Completed
+                                        .br
+                                        small Uncompleted stories assigned to sprint
+                                    .card-body
+                                        blockquote.blockquote.mb-0
+                                            .list-group
+                                
 
                         if !stories.length
                             div.col-md-12
