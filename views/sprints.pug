@@ -59,7 +59,7 @@ block content
                                                         if isUser
                                                             a() Add stories
                                                         else
-                                                            if moment().isBetween(moment(sprint.startDate), moment(sprint.endDate), 'days', '[]')
+                                                            if moment().isBefore(moment(sprint.endDate), 'days', '[]')
                                                                 a(href='/sprints/'+ sprint.Project.id + '/addstories/' + sprint.id) Add stories
 
                         if !sprints.length

@@ -1,6 +1,15 @@
 const models = require('../models');
 const Sprint = models.Sprint;
 
+const SPRINT_INCLUDED_FIELDS = [
+    {
+        model: models.Project,
+        as: 'Project',
+        attributes: ['name', 'id'],
+    }
+
+];
+
 async function currentActiveSprint(project_id){
     let sprint = await Sprint.findAll({
         include: [
@@ -29,6 +38,18 @@ async function currentActiveSprint(project_id){
     return null
 }
 
+async function getSprint(sid) {
+    // Solved with selection of assigned projects and then use those ids in query
+    return await Sprint.findOne({
+        include: SPRINT_INCLUDED_FIELDS,
+        where: {
+            [models.Sequelize.Op.or]: [
+                {id: sid}
+            ]
+        },
+    });
+}
+
 async function sprintsInProjects(project_ids){
     console.log("sprint query");
     let sprints = await models.Sprint.findAll({
@@ -50,4 +71,5 @@ async function sprintsInProjects(project_ids){
 module.exports = {
     currentActiveSprint,
     sprintsInProjects,
+    getSprint
 };

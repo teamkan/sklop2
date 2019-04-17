@@ -9,7 +9,6 @@ block content
 
         function fillSprintModal(sprint) {
             $('#modalTitle').text('Sprint ' + sprint.id + ' | ' + sprint.Project.name);
-            
         }
 
     body
@@ -22,19 +21,35 @@ block content
                     hr
 
                     div.main.container
-                        form.well.form-horizontarl(method='POST' action='#')
+                        form.well.form-horizontarl#formAssingStories(method='POST' action='#')
                             h1 Project: #{project.name} , Sprint: #{idsprint}
                             p Description: #{project.description}
+                            p Velocity: #{sprint.velocity}
+                            p Remaining velocity: #{remVel}
                             hr
-                            h6 Stories list
-                            hr
+                            h6 Select stories to add
                             select.custom-select#storiesList(name="Stories" multiple)
                                     each story in stories
                                         if !story.is_done
                                             if story.timeComplexity
-                                                option(value=story.id) #{story.name}
+                                                option(value=story.id data-size=story.timeComplexity) #{story.name} | Time complexity: #{story.timeComplexity}
                             hr
-                            button.btn.btn-primary(type="submit" data-dismiss="modal") Save
+                            .alert.alert-danger#alertVel(role='alert' style='display: none;')
+                                | Selected stories sizes exceed sprint velocity!
+                            button.btn.btn-primary(type="button" onclick="assingStories(" + remVel + ")") Save
 
+    script.
+        function assingStories(velocity) {
+            let selectedSize = 0;
+            $.each($("#storiesList option:selected"), function(){            
+                        selectedSize += $(this).data('size');
+                    });
 
-
+            if(selectedSize > velocity)
+                $('#alertVel').show()
+            else
+                $('#formAssingStories').submit()
+            
+        }
+        
+        

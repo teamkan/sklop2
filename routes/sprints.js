@@ -4,6 +4,7 @@ var models = require('../models/');
 
 const User = models.User;
 const Sprint = models.Sprint;
+const Stories = models.Stories;
 
 var middleware = require('./middleware.js');
 
@@ -45,15 +46,41 @@ router.get('/', middleware.ensureAuthenticated, async function(req, res, next) {
 //--------
 router.get('/:id/addstories/:idsprint', async function(req, res, next) {
     //preverjanje za casovno ocenjenost in realiziranost je implementirano v pugu
-    let projectStories = await StoriesHelper.listStories(req.params.id);
-    let currentProject = await ProjectHelper.getProject(req.params.idsprint);
-    console.log(projectStories);
-    res.render('sprints_addstories', { errorMessages: 0, success: 0, stories: projectStories, project: currentProject, idsprint: req.params.idsprint, uid: req.user.id, username: req.user.username, isUser: req.user.is_user});
+    let projectStories = await StoriesHelper.listStoriesForSprint(req.params.id);
+    let currentSprint = await SprintsHelper.getSprint(req.params.idsprint);
+    let currentProject = await ProjectHelper.getProject(currentSprint.Project.id);
+
+    let sprintStories = await StoriesHelper.listSprintStories(req.params.idsprint);
+
+    let remVel = currentSprint.velocity;
+
+    for(let i = 0; i < sprintStories.length; i++) {
+        remVel -= sprintStories[i].timeComplexity;
+    }
+
+    res.render('sprints_addstories', { errorMessages: 0, success: 0, stories: projectStories, remVel: remVel, project: currentProject, sprint: currentSprint, idsprint: req.params.idsprint, uid: req.user.id, username: req.user.username, isUser: req.user.is_user});
 });
 
 router.post('/:id/addstories/:idsprint', async function(req, res, next) {
     let data = req.body;
-    console.log(data.Stories);
+    let sprint_id = req.params.idsprint;
+
+    let stories = data.Stories;
+
+    for(let i = 0; i < stories.length; i++) {
+        let story = await Stories.findOne({
+            where: {
+                id: stories[i],
+            }
+        });
+
+        story.setAttributes({
+            sprint_id: sprint_id
+        });
+    
+        await story.save();
+    }
+
     res.redirect('/sprints');
 });
 
@@ -94,7 +121,7 @@ router.post('/', ProjectHelper.isSMorAdmin, async function(req, res, next) {
         }
 
 
-        var expected_velocity = 10;
+        var expected_velocity = 31;
         if (expected_velocity  <= data.velocity || data.velocity <= 0){
             req.flash('error', 'Irregular sprint velocity!')
             res.render('sprint', { errorMessages: req.flash('error'), success: 0,

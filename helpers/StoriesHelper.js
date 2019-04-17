@@ -2,6 +2,7 @@ const models = require('../models');
 
 const Stories = models.Stories;
 var sequelize = require('sequelize')
+const Op = sequelize.Op;
 
 async function isValidName(userStory) {
     // Check if there is another story with same name, case insensitive
@@ -27,6 +28,28 @@ async function listStories(projectId) {
     });
 }
 
+async function listStoriesForSprint(projectId) {
+    return await Stories.findAll( {
+        where: {
+            project_id: projectId,
+            timeComplexity: {
+                [Op.ne]: null
+              },
+            sprint_id: {
+                [Op.eq]: null
+            }
+        }
+    });
+}
+
+async function listSprintStories(sprintId) {
+    return await Stories.findAll( {
+        where: {
+            sprint_id: sprintId
+        }
+    });
+}
+
 async function getStory(storyID) {
     return await Stories.findOne( {
         where: {
@@ -38,5 +61,7 @@ async function getStory(storyID) {
 module.exports = {
     listStories,
     getStory,
-    isValidName
+    isValidName,
+    listStoriesForSprint,
+    listSprintStories
 };
