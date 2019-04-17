@@ -12,18 +12,30 @@ block content
                     div.row
                         div.col-md-12
                             if tasks.length
+                                h2 Current tasks
+                                hr
                                 each task in tasks
-                                    a.list-group-item.list-group-item-action(href='/tasks/' + task.id + '/view' style={'margin-bottom': '10px'})
-                                        .d-flex.w-100.justify-content-between
-                                            h5.mb-1 #{task.name}
-                                            
-                                        p.mb-1
-                                            |  #{task.description}
+                                    
+                                    ul.list-group
+                                        a.list-group-item.list-group-item-action(href='#') Task placeholder
+                                    
 
-                                        hr
-                                        p.mb-1
+                                    
+                                    //a.list-group-item.list-group-item-action(href='/tasks/' + task.id + '/view' style={'margin-bottom': '10px'})
+                                    //    .d-flex.w-100.justify-content-between
+                                    //        h5.mb-1 #{task.name}
+                                    //        
+                                    //    p.mb-1
+                                    //        |  #{task.description}
+
+                                    //    hr
+                                    //    p.mb-1
+                                button(type="button" class="btn btn-primary") temp
                             else
                                 p Seems like you do not have any tasks.
                                 p Enjoy your free day.
+                                
+                                
+                                
 
 
