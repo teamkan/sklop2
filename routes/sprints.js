@@ -11,6 +11,7 @@ var middleware = require('./middleware.js');
 var ProjectHelper = require('../helpers/ProjectHelper');
 var SprintsHelper = require('../helpers/SprintsHelper');
 var StoriesHelper = require('../helpers/StoriesHelper');
+const TaskHelper = require('../helpers/TasksHelper');
 var moment = require('moment')
 
 var myProjects;
@@ -59,6 +60,27 @@ router.get('/:id/addstories/:idsprint', async function(req, res, next) {
     }
 
     res.render('sprints_addstories', { errorMessages: 0, success: 0, stories: projectStories, remVel: remVel, project: currentProject, sprint: currentSprint, idsprint: req.params.idsprint, uid: req.user.id, username: req.user.username, isUser: req.user.is_user});
+});
+
+//--------
+router.get('/:id/backlog/:idsprint', async function(req, res, next) {
+    //preverjanje za casovno ocenjenost in realiziranost je implementirano v pugu
+    let projectStories = await StoriesHelper.listStoriesForSprint(req.params.id);
+    let currentSprint = await SprintsHelper.getSprint(req.params.idsprint);
+    let currentProject = await ProjectHelper.getProject(currentSprint.Project.id);
+
+    let sprintStories = await StoriesHelper.listSprintStories(req.params.idsprint);
+
+    let tasks = [];
+    for(let i = 0; i < sprintStories.length; i++) {
+        let taskStories = await TaskHelper.listTasks(sprintStories[i].id);
+        for(let j = 0; j < taskStories.length; j++)
+            tasks.push(taskStories[j]);
+    }
+
+    console.log(tasks);
+
+    res.render('sprint_backlog', { errorMessages: 0, success: 0, stories: sprintStories, tasks: tasks, project: currentProject, sprint: currentSprint, idsprint: req.params.idsprint, uid: req.user.id, username: req.user.username, isUser: req.user.is_user});
 });
 
 router.post('/:id/addstories/:idsprint', async function(req, res, next) {

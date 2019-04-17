@@ -4,6 +4,14 @@ const Stories = models.Stories;
 var sequelize = require('sequelize')
 const Op = sequelize.Op;
 
+const STORY_INCLUDED_FIELDS = [
+    {
+        model: models.Project,
+        as: 'Project',
+        attributes: ['name', 'id'],
+    }
+];
+
 async function isValidName(userStory) {
     // Check if there is another story with same name, case insensitive
     let existing = await Stories.findAll({
@@ -52,6 +60,7 @@ async function listSprintStories(sprintId) {
 
 async function getStory(storyID) {
     return await Stories.findOne( {
+        include: STORY_INCLUDED_FIELDS,
         where: {
             id: storyID,
         }

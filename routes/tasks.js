@@ -8,6 +8,7 @@ const middleware = require('./middleware.js');
 const User = models.User;
 const Projects = models.Project;
 const Stories = models.Stories;
+const Tasks = models.Task;
 
 // helpers
 const StoriesHelper = require('../helpers/StoriesHelper');
@@ -15,96 +16,98 @@ const ProjectHelper = require('../helpers/ProjectHelper');
 const TaskHelper = require('../helpers/TasksHelper');
 
 router.get('/stories/:id', async function(req, res, next) {
-    let taskStories = await TaskHelper.listTasks(req.params.id);
-    console.log(taskStories);
-    res.render('project', { errorMessages: 0, success: 0, tasks: taskStories, uid: req.task.name, description: req.task.description, time: req.task.time});
-    
-});
-
-// ------------------ endpoint for creating new task ------------------
-router.get('/task/:id/create', async function(req, res, next) {
     let story_id = req.params.id;
     let taskStories = await TaskHelper.listTasks(story_id);
     let selectedStory = await StoriesHelper.getStory(story_id);
+    let currentProject = await ProjectHelper.getProject(selectedStory.Project.id);
 
     res.render('tasks', { errorMessages: 0, success: 0,
-        storiesId: story_id, story: selectedStory, tasks: taskStories});
+        storiesId: story_id, story: selectedStory, project: currentProject, tasks: taskStories});
 });
 
-router.post('/task/:id/create', ProjectHelper.isSMorPM, async function(req, res, next) {
+// ------------------ endpoint for creating new task ------------------
+router.get('/stories/:id/create', async function(req, res, next) {
+    let story_id = req.params.id;
+    let selectedStory = await StoriesHelper.getStory(story_id);
+
+    let projectMembers = (await ProjectHelper.getProject(selectedStory.Project.id)).ProjectMembers
+
+    res.render('add_edit_task', { errorMessages: 0, title: 'AC scrum vol2', 
+        pageName: 'tasks', username: req.user.username,
+        isUser: req.user.is_user, success: 0, story: selectedStory, users: projectMembers });
+});
+
+router.post('/stories/:id/create', async function(req, res, next) {
     let data = req.body;
-    let stories_id = req.params.id;
+    let storyId = req.params.id;
+    let selectedStory = await StoriesHelper.getStory(storyId);
+    let projectMembers = (await ProjectHelper.getProject(selectedStory.Project.id)).ProjectMembers
 
     try {
-        // Create new task
-        const createdTask = Stories.build({
+        let users = await User.findAllUsers();
+
+        // Create new project
+        const createdTask = Tasks.build({
             name: data.name,
             description: data.description,
-            time: data.time,
-            stories_id: stories_id
+            time: data.timeEstimate,
+            stories_id: storyId,
+            assigned_user: data.assignedUser ? data.assignedUser : null,
         });
-
-        // Validate story
-        if (!await TaskHelper.isValidName(createdTask)){
-            req.flash(req.flash('error', `Task Name: ${createdTask.name} already in use`));
-            return res.render('tasks', { errorMessages: req.flash('error'), success: 0,
-                stories_id: stories_id, uid: req.task.id, name: req.user.name});
+        
+        /*
+        // Validate project
+        if (!await ProjectHelper.isValidProject(createdProject)){
+            req.flash(req.flash('error', `Project Name: ${createdProject.name} already in use!`));
+            return res.render('add_edit_project', { errorMessages: req.flash('error'),users:users, success: 0,
+                title: 'AC scrum vol2', pageName: 'projects',
+                username: req.user.username, isUser: req.user.is_user });
         }
-
+        */
         await createdTask.save();
 
-        req.flash('success', 'User story - ' + createdTask.name + ' has been successfully created');
-        res.render('tasks', { errorMessages: req.flash('error'), success: 0,
-                stories_id: stories_id, uid: req.task.id, name: req.user.name});
-
+        res.redirect('/tasks/stories/' + storyId);
     } catch (e) {
         console.log(e);
         req.flash('error', 'Error!');
-        res.render('tasks', { errorMessages: req.flash('error'), success: 0,
-                stories_id: stories_id, uid: req.task.id, name: req.user.name});
-    }
+        res.render('add_edit_task', { errorMessages: req.flash('error'), success: 0,
+            title: 'AC scrum vol2', pageName: 'tasks',
+            username: req.user.username, isUser: req.user.is_user, story: selectedStory, users: projectMembers});
 
+    }
 });
 
 
 // ------------------ endpoint for editing existing story ------------------
-router.get('/:id/edit/:taskId', ProjectHelper.isSMorPM, async function(req, res, next) {
-    console.log("-------------------------------------------------------------------------");
-    let tasks = await TaskHelper.getTask(req.params.taskId);
-    console.log(tasks)
-    return res.render('stories', { errorMessages: 0, success: 0, tasks: tasks,
-        projectId: tasks.project_id, importance_values: importance_values, uid: req.user.id, username: req.user.username, isUser: req.user.is_user});
+router.get('/stories/:id/edit/:taskId', async function(req, res, next) {
+    let story_id = req.params.id;
+    let task_id = req.params.taskId;
+    let selectedStory = await StoriesHelper.getStory(story_id);
+    let selectedTask = await TaskHelper.getTask(task_id);
 
+    let projectMembers = (await ProjectHelper.getProject(selectedStory.Project.id)).ProjectMembers
+
+    res.render('add_edit_task', { errorMessages: 0, title: 'AC scrum vol2', 
+        pageName: 'tasks', username: req.user.username,
+        isUser: req.user.is_user, success: 0, story: selectedStory, toEditTask: selectedTask, users: projectMembers });
 });
 
-/*router.get('/:id/estimate/:taskId', ProjectHelper.isSMorPM, async function(req, res, next) {
-    console.log("-------------------------------------------------------------------------");
-    let tasks = await TaskHelper.getTask(req.params.storyId);
-    console.log(tasks)
-    return res.render('story_estimate', { errorMessages: 0, success: 0, tasks: tasks,
-        projectId: tasks.project_id, importance_values: importance_values, uid: req.user.id, username: req.user.username, isUser: req.user.is_user});
-
-});*/
-
-router.post('/:id/edit/:taskId', ProjectHelper.isSMorPM, async function(req, res, next) {
+router.post('/stories/:id/edit/:taskId', async function(req, res, next) {
     let data = req.body;
-    let projectId = req.params.id;
     let task_id = req.params.taskId;
+    let story_id = req.params.id
 
-    let task = await Task.findOne({
-        where: {
-            id: task_id,
-        }
-    });
+    let task = await TaskHelper.getTask(task_id);
 
     // Set new attributes
     task.setAttributes({
         name: data.name,
         description: data.description,
-        time: data.time,
-        stories_id: task.stories_id
+        time: data.timeEstimate,
+        assigned_user: data.assignedUser,
     });
 
+    /*
     // validate task
     if (!await TaskHelper.isValidName(task)){
         let taskObject = await TaskHelper.getTask(task.id);
@@ -112,54 +115,24 @@ router.post('/:id/edit/:taskId', ProjectHelper.isSMorPM, async function(req, res
         return res.render('tasks', { errorMessages: req.flash('error'), success: 0, tasks: taskObject,
             projectId: story.project_id, importance_values: importance_values, uid: req.user.id, username: req.user.username, isUser: req.user.is_user});
     }
-
+    */
     await task.save();
 
-    let task_updated = await Task.getTask(task);
-
-    req.flash('success', 'Task - ' + task.name + ' has been successfully updated');
-    return res.render('tasks', { errorMessages: 0, success: req.flash('success'), task: task_updated,
-        projectId: story.project_id, importance_values: importance_values, uid: req.user.id, username: req.user.username, isUser: req.user.is_user});
-
+    res.redirect('/tasks/stories/' + story_id);
 });
 
-/*router.post('/:id/delete/:storyId', ProjectHelper.isSMorPM, async function(req, res, next) {
+router.post('/stories/:id/delete/:taskId', async function(req, res, next) {
     let data = req.body;
-    let projectId = req.params.id;
-    let story_id = req.params.storyId;
+    let task_id = req.params.taskId;
+    let story_id = req.params.id
 
-    await Stories.destroy({
+    await Tasks.destroy({
         where: {
-            id: story_id,
+            id: task_id,
         }
     });
 
-    res.redirect('/projects/' + projectId + '/view');
-
-});*/
-
-
-/*router.post('/:id/estimate/:storyId', ProjectHelper.isSMorPM, async function(req, res, next) {
-    let data = req.body;
-    let projectId = req.params.id;
-    let story_id = req.params.storyId;
-
-    let story = await Stories.findOne({
-        where: {
-            id: story_id,
-        }
-    });
-
-    // Set new attributes
-    story.setAttributes({
-        timeComplexity: data.timeComplexity,
-    });
-
-    await story.save();
-
-    res.redirect('/projects/' + projectId + '/view');
-
-});*/
-
+    res.redirect('/tasks/stories/' + story_id);
+});
 
 module.exports = router;

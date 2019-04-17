@@ -35,7 +35,6 @@ async function getProject(pid) {
     });
 }
 
-
 async function getMyProjects(uid) {
     var assignedProjectsIds = await UserProject.findAll({
         where: {
@@ -186,7 +185,7 @@ async function isPM(req, res, next) {
 }
 
 async function isSMorAdmin(req, res, next) {
-
+    
     if (!req.isAuthenticated()) {
         console.log('isSMorAdmin not logined');
         res.redirect('/');

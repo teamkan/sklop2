@@ -6,7 +6,19 @@ block content
         main.container(role="main")
             .container.theme-showcase
                 .page-header
+                    .page-header
+                        h3.ml-3.mb-3 #{story.name}
 
+                        .container
+                            nav.navbar.navbar-expand-lg.navbar-light.bg-light
+                                ul.navbar-nav.mr-auto
+                                    li.nav-item
+                                        a.nav-link(href='/projects/' + project.id + '/view')
+                                            i.fas.fa-chevron-left
+                                            |   Project
+                                        li.nav-item
+                                            a.nav-link(href='/tasks/stories/'+ story.id + '/create') Add Task
+                        hr
                 div.main.container
 
                     div.row
@@ -17,21 +29,11 @@ block content
                                 each task in tasks
                                     
                                     ul.list-group
-                                        a.list-group-item.list-group-item-action(href='#') Task placeholder
-                                    
-
-                                    
-                                    //a.list-group-item.list-group-item-action(href='/tasks/' + task.id + '/view' style={'margin-bottom': '10px'})
-                                    //    .d-flex.w-100.justify-content-between
-                                    //        h5.mb-1 #{task.name}
-                                    //        
-                                    //    p.mb-1
-                                    //        |  #{task.description}
-
-                                    //    hr
-                                    //    p.mb-1
-                                button(type="button" class="btn btn-primary") temp
-                            else
+                                        if task.AssignedUser
+                                            a.list-group-item.list-group-item-action(href='/tasks/stories/' + story.id + '/edit/' + task.id) #{task.name} | Time estimate: #{task.time} | Assigned: #{task.AssignedUser.name}
+                                        else
+                                            a.list-group-item.list-group-item-action(href='/tasks/stories/' + story.id + '/edit/' + task.id) #{task.name} | Time estimate: #{task.time} | Not Assigned
+                            else        
                                 p Seems like you do not have any tasks.
                                 p Enjoy your free day.
                                 

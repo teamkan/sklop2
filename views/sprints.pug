@@ -42,7 +42,8 @@ block content
                                                 th(scope="col") Velocity
 
                                                 //th Edit
-                                                th(scope="col") Options
+                                                th(scope="col") Stories
+                                                th(scope="col") Backlog
                                         tbody
                                             each sprint in sprints
                                                 tr
@@ -56,11 +57,11 @@ block content
                                                     td #{moment(sprint.endDate).format('DD.MM.YYYY')}
                                                     td #{sprint.velocity}
                                                     td
-                                                        if isUser
-                                                            a() Add stories
-                                                        else
-                                                            if moment().isBefore(moment(sprint.endDate), 'days', '[]')
-                                                                a(href='/sprints/'+ sprint.Project.id + '/addstories/' + sprint.id) Add stories
+                                                        if moment().isSameOrBefore(moment(sprint.endDate), 'days', '[]')
+                                                            a(href='/sprints/'+ sprint.Project.id + '/addstories/' + sprint.id) Add stories
+                                                    td
+                                                        if moment().isSameOrBefore(moment(sprint.endDate), 'days', '[]')
+                                                            a(href='/sprints/'+ sprint.Project.id + '/backlog/' + sprint.id) Sprint backlog
 
                         if !sprints.length
                             div.col-md-12
