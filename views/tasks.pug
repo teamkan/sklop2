@@ -11,20 +11,19 @@ block content
 
                     div.row
                         div.col-md-12
-                            each task in tasks
-                                a.list-group-item.list-group-item-action(href='/tasks/' + task.id + '/view' style={'margin-bottom': '10px'})
-                                    .d-flex.w-100.justify-content-between
-                                        h5.mb-1 #{task.name}
-                                        
-                                    p.mb-1
-                                        |  #{task.description}
+                            if tasks.length
+                                each task in tasks
+                                    a.list-group-item.list-group-item-action(href='/tasks/' + task.id + '/view' style={'margin-bottom': '10px'})
+                                        .d-flex.w-100.justify-content-between
+                                            h5.mb-1 #{task.name}
+                                            
+                                        p.mb-1
+                                            |  #{task.description}
 
-                                    hr
-                                    p.mb-1
-                                    
-                    if !tasks.length
-                        div.col-md-12
-                            p Seems like you do not have any tasks.
-                            p Enjoy your free day.
+                                        hr
+                                        p.mb-1
+                            else
+                                p Seems like you do not have any tasks.
+                                p Enjoy your free day.
 
 

@@ -102,6 +102,9 @@ block content
                                                             br
                                                             small Time complexity: #{story.timeComplexity}
                                                             br
+                                                            if project.product_owner != uid 
+                                                                span
+                                                                    button.btn.btn-primary.btn-sm(type='submit', onclick="addTasks(" + project.id + "," + story.id + ")") Tasks
 
                                 .card.border-secondary
                                     .card-header.alert-success
@@ -149,11 +152,14 @@ block content
         showMore.onclick = toggleShownStories;
         
         function editStory(projectId, storyId) {
-            console.log(storyId);
             location.href = "/stories/" + projectId + "/edit/" + storyId
         }
 
         function enterTimeComplexity(projectId, storyId) {
-            console.log(storyId);
             location.href = "/stories/" + projectId + "/estimate/" + storyId
+        }
+
+        function addTasks(projectId, storyId) {
+            location.href = "/tasks/task/" + storyId + "/create"
+
         }

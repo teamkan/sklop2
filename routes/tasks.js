@@ -12,7 +12,7 @@ const Stories = models.Stories;
 // helpers
 const StoriesHelper = require('../helpers/StoriesHelper');
 const ProjectHelper = require('../helpers/ProjectHelper');
-const TaskHelper = require('../helpers/TaskHelper');
+const TaskHelper = require('../helpers/TasksHelper');
 
 router.get('/stories/:id', async function(req, res, next) {
     let taskStories = await TaskHelper.listTasks(req.params.id);
@@ -22,11 +22,13 @@ router.get('/stories/:id', async function(req, res, next) {
 });
 
 // ------------------ endpoint for creating new task ------------------
-router.get('/task/:id/create', ProjectHelper.isSMorPM, async function(req, res, next) {
-    let stories_id = req.params.id;
+router.get('/task/:id/create', async function(req, res, next) {
+    let story_id = req.params.id;
+    let taskStories = await TaskHelper.listTasks(story_id);
+    let selectedStory = await StoriesHelper.getStory(story_id);
 
     res.render('tasks', { errorMessages: 0, success: 0,
-        storiesId: stories_id, name: name, uid: req.task.name, description: req.task.description, time: req.task.time});
+        storiesId: story_id, story: selectedStory, tasks: taskStories});
 });
 
 router.post('/task/:id/create', ProjectHelper.isSMorPM, async function(req, res, next) {
