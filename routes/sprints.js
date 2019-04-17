@@ -44,6 +44,7 @@ router.get('/', middleware.ensureAuthenticated, async function(req, res, next) {
 
 //--------
 router.get('/:id/addstories/:idsprint', async function(req, res, next) {
+    //preverjanje za casovno ocenjenost in realiziranost je implementirano v pugu
     let projectStories = await StoriesHelper.listStories(req.params.id);
     let currentProject = await ProjectHelper.getProject(req.params.idsprint);
     console.log(projectStories);
@@ -51,7 +52,9 @@ router.get('/:id/addstories/:idsprint', async function(req, res, next) {
 });
 
 router.post('/:id/addstories/:idsprint', async function(req, res, next) {
-    //TODO, pridobi vrednosti iz forma, shrani
+    let data = req.body;
+    console.log(data.Stories);
+    res.redirect('/sprints');
 });
 
 router.post('/', ProjectHelper.isSMorAdmin, async function(req, res, next) {

@@ -30,7 +30,9 @@ block content
                             hr
                             select.custom-select#storiesList(name="Stories" multiple)
                                     each story in stories
-                                        option(value=story.id) #{story.name}
+                                        if !story.is_done
+                                            if story.timeComplexity
+                                                option(value=story.id) #{story.name}
                             hr
                             button.btn.btn-primary(type="submit" data-dismiss="modal") Save
 
